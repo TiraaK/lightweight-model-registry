@@ -163,6 +163,14 @@ class ModelRegistry:
             if version is None:
                 print(f"✗ {name}의 버전을 찾을 수 없습니다")
                 return None
+        
+        # best 버전 처리 (Bonus Feature)
+        elif version == "best":
+            version = self._get_best_version(name)
+            if version is None:
+                print(f"✗ {name}의 평가 메트릭이 있는 버전을 찾을 수 없습니다")
+                return None
+            print(f"✓ 최고 성능 버전 선택됨: {version}")
 
         # 버전 확인
         if version not in self.metadata[name]:
@@ -179,6 +187,33 @@ class ModelRegistry:
             print(f"⚠ 경고: 메타데이터는 존재하지만 파일을 찾을 수 없습니다: {file_path}")
 
         return model_info
+
+    def _get_best_version(self, name: str) -> Optional[str]:
+        """
+        모델 패밀리 중 가장 높은 메트릭 값을 가진 버전 반환
+        기준: metrics 딕셔너리의 첫 번째 값(Value)을 기준으로 내림차순 정렬
+        """
+        if name not in self.metadata or not self.metadata[name]:
+            return None
+        
+        best_ver = None
+        max_score = -1.0
+
+        for ver, info in self.metadata[name].items():
+            metrics = info.get("metrics", {})
+            if not metrics:
+                continue
+            
+            # 첫 번째 메트릭 값을 기준으로 삼음 (예: {"acc": 0.9} -> 0.9)
+            score = list(metrics.values())[0]
+            
+            # 메트릭 값이 숫자인 경우에만 비교
+            if isinstance(score, (int, float)):
+                if score > max_score:
+                    max_score = score
+                    best_ver = ver
+        
+        return best_ver
 
     def _get_latest_version(self, name: str) -> Optional[str]:
         """모델 패밀리의 최신 버전 반환"""

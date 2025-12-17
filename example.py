@@ -109,6 +109,8 @@ def demo_registry():
     if model_info:
         print(f"   - 등록 일시: {model_info['registered_at']}")
         print(f"   - 설명: {model_info['description']}")
+        
+    
 
     #############
     # 모델 목록 조회
