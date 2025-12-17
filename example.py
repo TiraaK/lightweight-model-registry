@@ -7,37 +7,49 @@ import os
 import torch
 import torchvision.models as models
 from registry import ModelRegistry
+from pathlib import Path
+
+# 원본 모델 다운로드 경로
+PRETRAINED_DIR = Path("pretrained_models")
 
 def download_and_save_models():
     """사전 학습된 모델 2개를 다운로드하고 저장 (이미 있으면 스킵)"""
+    # 다운로드 디렉토리 생성
+    PRETRAINED_DIR.mkdir(exist_ok=True)
+    
     print("\n" + "="*60)
     print("1단계: 사전 학습된 모델 다운로드")
+    print(f"저장 위치: {PRETRAINED_DIR}")
     print("="*60)
 
     # ResNet-18 다운로드 (~45MB)
-    if os.path.exists("resnet18_pretrained.pth"):
+    r18_path = PRETRAINED_DIR / "resnet18_pretrained.pth"
+    if r18_path.exists():
          print("\n✓ ResNet-18 파일이 이미 존재하여 다운로드를 건너뜁니다.")
     else:
         print("\n📥 ResNet-18 다운로드 중...")
         resnet18 = models.resnet18(pretrained=True)
-        torch.save(resnet18.state_dict(), "resnet18_pretrained.pth") 
-        print("✓ ResNet-18 저장 완료: resnet18_pretrained.pth")
+        torch.save(resnet18.state_dict(), r18_path) 
+        print("✓ ResNet-18 저장 완료")
 
     # MobileNetV2 다운로드 (~14MB)
-    if os.path.exists("mobilenetv2_pretrained.pth"):
+    mn_path = PRETRAINED_DIR / "mobilenetv2_pretrained.pth"
+    if mn_path.exists():
         print("\n✓ MobileNetV2 파일이 이미 존재하여 다운로드를 건너뜁니다.")
     else:
         print("\n📥 MobileNetV2 다운로드 중...")
         mobilenet = models.mobilenet_v2(pretrained=True)
-        torch.save(mobilenet.state_dict(), "mobilenetv2_pretrained.pth")
-        print("✓ MobileNetV2 저장 완료: mobilenetv2_pretrained.pth")
+        torch.save(mobilenet.state_dict(), mn_path)
+        print("✓ MobileNetV2 저장 완료")
+    
+    return r18_path, mn_path
 
 
 def demo_registry():
     """레지스트리 기능 시연"""
 
     # 모델 다운로드
-    download_and_save_models()
+    r18_path, mn_path = download_and_save_models()
 
     # 레지스트리 초기화
     print("\n" + "="*60)
@@ -50,42 +62,42 @@ def demo_registry():
     # 모델 등록
     #############
     print("\n" + "="*60)
-    print("3단계: 모델 등록")
+    print("3단계: 모델 등록 (시뮬레이션)")
     print("="*60)
 
     # ResNet-18 등록 (v1)
-    print("\n[1] ResNet-18 등록...")
+    print("\n[1] ResNet-18 등록 (v1)...")
     registry.register(
         name="resnet18",
-        model_path="resnet18_pretrained.pth",
+        model_path=str(r18_path),
         framework="pytorch",
         architecture="ResNet-18",
         input_shape=(3, 224, 224),
-        metrics={"top1_accuracy": 0.697, "top5_accuracy": 0.891},
+        metrics={"top1_accuracy": 0.697},
         dataset="ImageNet",
-        description="사전 학습된 ResNet-18 모델 (일반 이미지 분류)"
+        description="Base Pretrained Model"
+    )
+
+    # ResNet-18 v2 등록 (성능 개선 시뮬레이션)
+    print("\n[2] ResNet-18 등록 (v2 - 성능 개선 시뮬레이션)...")
+    registry.register(
+        name="resnet18",
+        model_path=str(r18_path), # 같은 파일을 쓰지만 메타데이터는 다르게
+        metrics={"top1_accuracy": 0.725}, # 성능이 좋아졌다고 가정
+        description="Hyperparameter Tuned v2"
     )
 
     # MobileNetV2 등록 (v1)
-    print("\n[2] MobileNetV2 등록...")
+    print("\n[3] MobileNetV2 등록...")
     registry.register(
         name="mobilenetv2",
-        model_path="mobilenetv2_pretrained.pth",
+        model_path=str(mn_path),
         framework="pytorch",
         architecture="MobileNetV2",
         input_shape=(3, 224, 224),
-        metrics={"top1_accuracy": 0.718, "top5_accuracy": 0.901},
+        metrics={"top1_accuracy": 0.718},
         dataset="ImageNet",
-        description="경량화된 MobileNetV2 모델 (모바일 환경용)"
-    )
-
-    # ResNet-18 v2 등록 (버전 자동 증가 테스트)
-    print("\n[3] ResNet-18 v2 등록 (동일 모델, 버전 증가 테스트)...")
-    registry.register(
-        name="resnet18",
-        model_path="resnet18_pretrained.pth",
-        metrics={"top1_accuracy": 0.710, "top5_accuracy": 0.895},
-        description="Fine-tuned ResNet-18 v2"
+        description="Mobile Optimized Model"
     )
 
     ##########
@@ -96,21 +108,19 @@ def demo_registry():
     print("="*60)
 
     # latest 버전 조회
-    print("\n[1] ResNet-18 latest 버전 조회:")
-    model_info = registry.get("resnet18", "latest")
-    if model_info:
-        print(f"   - 버전: {model_info['version']}")
-        print(f"   - 파일 경로: {model_info['file_path']}")
-        print(f"   - 메트릭: {model_info['metrics']}")
+    print("\n[1] ResNet-18 'latest' 버전 조회 (시간순 최신):")
+    latest_info = registry.get("resnet18", "latest")
+    if latest_info:
+        print(f"   - 버전: {latest_info['version']}")
+        print(f"   - 메트릭: {latest_info['metrics']}")
 
-    # 특정 버전 조회
-    print("\n[2] ResNet-18 v1 버전 조회:")
-    model_info = registry.get("resnet18", "v1")
-    if model_info:
-        print(f"   - 등록 일시: {model_info['registered_at']}")
-        print(f"   - 설명: {model_info['description']}")
-        
-    
+    # best 버전 조회 (새로 추가된 기능)
+    print("\n[2] ResNet-18 'best' 버전 조회 (성능 최고점):")
+    best_info = registry.get("resnet18", "best")
+    if best_info:
+        print(f"   - 버전: {best_info['version']}")
+        print(f"   - 메트릭: {best_info['metrics']}")
+        print(f"   -> v1(0.697)보다 v2(0.725)가 선택됨!")
 
     #############
     # 모델 목록 조회
@@ -125,28 +135,16 @@ def demo_registry():
     for model in all_models:
         print(f"   - {model}")
 
-    # 특정 모델의 모든 버전
-    print("\n[2] ResNet-18의 모든 버전:")
-    resnet_versions = registry.list("resnet18")
-    for model in resnet_versions:
-        print(f"   - {model}")
-
-    # 모델 패밀리 목록
-    print("\n[3] 모델 패밀리:")
-    families = registry.list_families()
-    for family in families:
-        print(f"   - {family}")
-
     # 레지스트리 요약
     registry.print_summary()
 
     print("\n" + "="*60)
     print("✓ 데모 완료!")
     print("="*60)
-    print("\n💡 생성된 파일:")
-    print("   - ./models/          : 모델 파일 저장소")
-    print("   - ./registry.yaml    : 메타데이터 파일")
-    print("\n메타데이터 파일(registry.yaml)을 열어서 구조를 확인해보세요!")
+    print("\n💡 폴더 구조:")
+    print("   - ./pretrained_models/ : 원본 다운로드 파일")
+    print("   - ./models/            : 레지스트리 저장소 (버전 관리)")
+    print("   - ./registry.yaml      : 메타데이터 파일")
 
 
 if __name__ == "__main__":
