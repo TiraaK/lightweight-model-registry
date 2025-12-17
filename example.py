@@ -3,28 +3,34 @@
 registry.py의 기능을 시연하는 예제
 """
 
+import os
 import torch
 import torchvision.models as models
 from registry import ModelRegistry
 
-
 def download_and_save_models():
-    """사전 학습된 모델 2개를 다운로드하고 저장"""
+    """사전 학습된 모델 2개를 다운로드하고 저장 (이미 있으면 스킵)"""
     print("\n" + "="*60)
     print("1단계: 사전 학습된 모델 다운로드")
     print("="*60)
 
     # ResNet-18 다운로드 (~45MB)
-    print("\n📥 ResNet-18 다운로드 중...")
-    resnet18 = models.resnet18(pretrained=True)
-    torch.save(resnet18.state_dict(), "resnet18_pretrained.pth")
-    print("✓ ResNet-18 저장 완료: resnet18_pretrained.pth")
+    if os.path.exists("resnet18_pretrained.pth"):
+         print("\n✓ ResNet-18 파일이 이미 존재하여 다운로드를 건너뜁니다.")
+    else:
+        print("\n📥 ResNet-18 다운로드 중...")
+        resnet18 = models.resnet18(pretrained=True)
+        torch.save(resnet18.state_dict(), "resnet18_pretrained.pth") 
+        print("✓ ResNet-18 저장 완료: resnet18_pretrained.pth")
 
     # MobileNetV2 다운로드 (~14MB)
-    print("\n📥 MobileNetV2 다운로드 중...")
-    mobilenet = models.mobilenet_v2(pretrained=True)
-    torch.save(mobilenet.state_dict(), "mobilenetv2_pretrained.pth")
-    print("✓ MobileNetV2 저장 완료: mobilenetv2_pretrained.pth")
+    if os.path.exists("mobilenetv2_pretrained.pth"):
+        print("\n✓ MobileNetV2 파일이 이미 존재하여 다운로드를 건너뜁니다.")
+    else:
+        print("\n📥 MobileNetV2 다운로드 중...")
+        mobilenet = models.mobilenet_v2(pretrained=True)
+        torch.save(mobilenet.state_dict(), "mobilenetv2_pretrained.pth")
+        print("✓ MobileNetV2 저장 완료: mobilenetv2_pretrained.pth")
 
 
 def demo_registry():
@@ -40,7 +46,9 @@ def demo_registry():
     registry = ModelRegistry(storage_path="./models", metadata_file="./registry.yaml")
     print("✓ 레지스트리 초기화 완료")
 
+    #############
     # 모델 등록
+    #############
     print("\n" + "="*60)
     print("3단계: 모델 등록")
     print("="*60)
@@ -80,7 +88,9 @@ def demo_registry():
         description="Fine-tuned ResNet-18 v2"
     )
 
+    ##########
     # 모델 조회
+    ##########
     print("\n" + "="*60)
     print("4단계: 모델 조회")
     print("="*60)
@@ -100,7 +110,9 @@ def demo_registry():
         print(f"   - 등록 일시: {model_info['registered_at']}")
         print(f"   - 설명: {model_info['description']}")
 
+    #############
     # 모델 목록 조회
+    #############
     print("\n" + "="*60)
     print("5단계: 모델 목록 조회")
     print("="*60)

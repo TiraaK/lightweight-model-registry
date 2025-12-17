@@ -1,0 +1,47 @@
+mobilenetv2:
+  v1:
+    architecture: MobileNetV2
+    dataset: ImageNet
+    description: 경량화된 MobileNetV2 모델 (모바일 환경용)
+    file_path: models/mobilenetv2/v1/mobilenetv2_pretrained.pth
+    framework: pytorch
+    input_shape:
+    - 3
+    - 224
+    - 224
+    metrics:
+      top1_accuracy: 0.718
+      top5_accuracy: 0.901
+    name: mobilenetv2
+    registered_at: '2025-12-17T20:59:14.506821'
+    version: v1
+resnet18:
+  v1:
+    architecture: ResNet-18
+    dataset: ImageNet
+    description: 사전 학습된 ResNet-18 모델 (일반 이미지 분류)
+    file_path: models/resnet18/v1/resnet18_pretrained.pth
+    framework: pytorch
+    input_shape:
+    - 3
+    - 224
+    - 224
+    metrics:
+      top1_accuracy: 0.697
+      top5_accuracy: 0.891
+    name: resnet18
+    registered_at: '2025-12-17T20:59:14.491165'
+    version: v1
+  v2:
+    architecture: resnet18
+    dataset: null
+    description: Fine-tuned ResNet-18 v2
+    file_path: models/resnet18/v2/resnet18_pretrained.pth
+    framework: pytorch
+    input_shape: null
+    metrics:
+      top1_accuracy: 0.71
+      top5_accuracy: 0.895
+    name: resnet18
+    registered_at: '2025-12-17T20:59:14.524985'
+    version: v2
