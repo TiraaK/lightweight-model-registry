@@ -75,7 +75,7 @@ pip install -r requirements.txt
 python example.py
 ```
 
-### 데모 시나리오 (What happens next?)
+### 데모 시나리오
 스크립트(`example.py`) 실행 시 다음 프로세스가 자동으로 수행됩니다:
 
 1.  **다운로드 & 캐싱:** `pretrained_models/` 폴더에 다음 두 가지 모델을 다운로드합니다.
