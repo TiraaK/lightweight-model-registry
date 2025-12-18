@@ -1,0 +1,44 @@
+chest_xray_densenet:
+  v1:
+    architecture: DenseNet-121
+    dataset: ChestX-ray14
+    description: 흉부 X-ray 진단을 위한 의료용 AI Model
+    file_path: models/chest_xray_densenet/v1/densenet121_pretrained.pth
+    framework: pytorch
+    input_shape:
+    - 1
+    - 224
+    - 224
+    metrics:
+      auc_roc: 0.845
+    name: chest_xray_densenet
+    registered_at: '2025-12-18T14:32:05.835035'
+    version: v1
+resnet18:
+  v1:
+    architecture: ResNet-18
+    dataset: ImageNet
+    description: 일반적인 이미지 분류 용도
+    file_path: models/resnet18/v1/resnet18_pretrained.pth
+    framework: pytorch
+    input_shape:
+    - 3
+    - 224
+    - 224
+    metrics:
+      top1_accuracy: 0.697
+    name: resnet18
+    registered_at: '2025-12-18T14:26:29.319808'
+    version: v1
+  v2:
+    architecture: resnet18
+    dataset: null
+    description: Hyperparameter Tuned v2
+    file_path: models/resnet18/v2/resnet18_pretrained.pth
+    framework: pytorch
+    input_shape: null
+    metrics:
+      top1_accuracy: 0.725
+    name: resnet18
+    registered_at: '2025-12-18T14:30:40.038866'
+    version: v2

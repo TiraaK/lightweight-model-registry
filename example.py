@@ -115,13 +115,13 @@ def demo_registry():
         print(f"   - 버전: {latest_info['version']}")
         print(f"   - 메트릭: {latest_info['metrics']}")
 
-    # best 버전 조회 (새로 추가된 기능)
+    # best 버전 조회
     print("\n[2] ResNet-18 'best' 버전 조회 (성능 최고점):")
     best_info = registry.get("resnet18", "best")
     if best_info:
         print(f"   - 버전: {best_info['version']}")
         print(f"   - 메트릭: {best_info['metrics']}")
-        print(f"   -> v1보다 v2가 선택됨!")
+        print(f"   -> v1보다 더 높은 점수를 획득한 v2가 선택됨!")
 
     #############
     # 모델 목록 조회
