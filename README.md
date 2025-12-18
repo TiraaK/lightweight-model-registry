@@ -1,7 +1,6 @@
 # 모델 레지스트리 시스템 (Model Registry System)
 
 ML 모델 파일(`.pth`, `.pt`)의 무분별한 버전 파편화를 막고, 중앙에서 체계적으로 관리하기 위한 **경량화된 레지스트리 시스템**입니다.
-
 ---
 
 ## 1. 프로젝트 개요
@@ -38,10 +37,11 @@ ML 모델 파일(`.pth`, `.pt`)의 무분별한 버전 파편화를 막고, 중�
 
 ## 3. 차별화 요소 및 최적화 (Advanced Features)
 
-> 과제 요구사항 외적으로, 실제 프로덕션 환경을 고려하여 추가로 구현한 기능들입니다.
+실제 프로덕션 환경을 고려하여 추가로 구현한 기능들입니다.
 
 ### I. 목적별 조회 전략 분리 (`latest` vs `best`)
 조회 목적에 따라 옵션을 분리하여 유연성을 확보했습니다
+
 - **latest:** 시간상 가장 최신 버전을 조회 (실험 이력 추적용)
 - **best:** 메트릭(Accuracy 등)이 가장 높은 버전을 조회 (실제 배포용)
 
@@ -77,6 +77,7 @@ python example.py
 ### 데모 시나리오
 스크립트(`example.py`) 실행 시 다음 프로세스가 자동으로 수행됩니다:
 
+
 1.  **다운로드 & 캐싱:** `pretrained_models/` 폴더에 다음 두 가지 모델을 다운로드합니다.
     *   **ResNet-18:** 일반 비전(General Vision) 모델
     *   **DenseNet-121:** 의료 영상(Medical AI, Chest X-ray) 표준 모델
@@ -89,13 +90,9 @@ python example.py
     *   `best` 쿼리로 성능이 가장 좋은 `v2`가 선택되는지 검증합니다.
 4.  **결과 리포트:** 전체 모델 목록과 저장된 메타데이터 요약을 출력합니다.
 
----
-
-## 5. 아키텍처 개요 (Simplified)
-
 ```mermaid
-flowchart LR
-    User -->|Register/Get| API[Model Registry]
+flowchart
+    User -->|Register/Get/List| API[Model Registry]
     API -->|Write Meta| YAML[registry.yaml]
     API -->|Save File| FS[models/ Directory]
     FS -.->|Cache| Pretrained[pretrained_models/]
@@ -103,22 +100,7 @@ flowchart LR
 
 ---
 
-## 6. AI 도구 활용 노트 (AI Usage Note)
-
-본 과제 수행 과정에서 생산성을 높이기 위해 생성형 AI(Claude, ChatGPT)를 활용했습니다.
-
-- **활용 도구:** Claude 3.5 Sonnet, ChatGPT-4o
-- **주요 활용 사례:**
-    1.  **보일러플레이트 코드 생성:** `ModelRegistry` 클래스의 초기 뼈대 코드와 `__init__` 메서드 작성 시간을 단축했습니다.
-    2.  **문서 초안 작성:** `SYSTEM_DESIGN.md`의 목차 구성과 기술 비교표(Table) 아이디어를 제안받았습니다.
-    3.  **예외 처리 로직 보완:** 파일 경로가 없을 때의 Fallback 로직(`os.path.exists` 체크) 구현 시 조언을 얻었습니다.
-
-- **AI 제안 수정 사례:**
-    - AI는 처음에 복잡한 SQLite 데이터베이스 사용을 제안했으나, 과제의 요구사항(가벼운 로컬 시스템)에 맞춰 **YAML 기반의 단순 구조**로 직접 변경하여 구현했습니다.
-
----
-
-## 7. 사용 가이드 및 API 명세
+## 5. 사용 가이드 및 API 명세
 
 ### Python API 예제
 
@@ -144,11 +126,19 @@ model = registry.get("resnet18", version="best")
 
 ---
 
-## 8. 등록된 모델 정보 (Demo)
+## 6. AI 도구 활용 노트 (AI Usage Note)
 
-본 데모는 과제 권장사항에 따라 **의료 도메인 모델**을 포함하고 있습니다.
+본 과제 수행 과정에서 생산성을 높이기 위해 생성형 AI(Google Gemini 2.5 Pro)를 활용했습니다.
 
-| 모델 패밀리 | 버전 | 도메인 | 용도 | 성능 지표 |
-|-------------|------|------|------|-----------|
-| **ResNet-18** | v1, v2 | General | 일반 이미지 분류 | Acc 69.7%~ |
-| **ChestXray-DenseNet** | v1 | Medical | 흉부 X-ray 진단 | AUC 0.845 |
+- **활용 도구:** Google Gemini 2.5 Pro
+- **주요 도움 사례 (Key Prompts):**
+    1.  **의료 도메인 지식 습득:** *"과제에서 의료 모델 사용을 권장하는데, 코드 변경을 최소화하면서 로컬에서 가볍게 돌릴 수 있는 X-ray용 표준 모델을 추천해줘."* -> `DenseNet-121`과 `ChestX-ray14` 데이터셋 조합을 제안받아 적용함.
+    2.  **기능 확장 (Best Model):** *"단순히 최신 버전(`latest`)이 아니라, 메트릭 점수가 가장 높은 버전을 자동으로 찾는 `best` 로직을 구현하고 싶어."* -> `_get_best_version` 헬퍼 메서드 아이디어를 얻음.
+    3.  **문서 구조화:** `SYSTEM_DESIGN.md`의 목차 구성과 기술 비교표(Table) 아이디어를 제안받음.
+
+- **AI 제안 수정/거절 사례 (Human in the Loop):**
+    - **상황:** AI가 시스템 설계 문서에 `Path Resolver`, `Version Manager` 같은 실제 코드에 없는 추상적인 컴포넌트 이름을 사용하여 다이어그램을 작성함.
+    - **수정:** *"코드는 단순한데 문서만 복잡하면 오히려 이해를 해친다. 실제 코드(`registry.py`)에 있는 클래스와 메서드명으로 담백하게 다시 작성하라"*고 지시하여, 실제 구현과 일치하는 직관적인 문서로 수정함.
+
+
+---

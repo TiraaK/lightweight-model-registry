@@ -38,7 +38,6 @@ def download_and_save_models():
         print("\n✓ DenseNet-121 파일이 이미 존재하여 다운로드를 건너뜁니다.")
     else:
         print("\n📥 DenseNet-121 (Medical AI용) 다운로드 중...")
-        # DenseNet121은 흉부 X-ray 분류 등 의료 영상에서 표준적으로 사용됨
         densenet = models.densenet121(pretrained=True)
         torch.save(densenet.state_dict(), dense_path)
         print("✓ DenseNet-121 저장 완료")
@@ -66,26 +65,26 @@ def demo_registry():
     print("3단계: 모델 등록 (시뮬레이션)")
     print("="*60)
 
-    # [1] ResNet-18 등록 (General Vision)
-    print("\n[1] ResNet-18 등록 (v1)...")
+    # [1] ResNet-18 등록 (v1)
+    print("\n[1] ResNet-18 등록 (v1) - 성능 0.95 (Best Model)...")
     registry.register(
         name="resnet18",
         model_path=str(r18_path),
         framework="pytorch",
         architecture="ResNet-18",
         input_shape=(3, 224, 224),
-        metrics={"top1_accuracy": 0.697},
+        metrics={"top1_accuracy": 0.950}, # 매우 높은 성능
         dataset="ImageNet",
-        description="일반적인 이미지 분류 용도"
+        description="Initial High Performance Model"
     )
 
-    # ResNet-18 v2 등록 (성능 개선 시뮬레이션)
-    print("\n[2] ResNet-18 등록 (v2 - 성능 개선 시뮬레이션)...")
+    # [2] ResNet-18 등록 (v2)
+    print("\n[2] ResNet-18 등록 (v2) - 성능 0.88 (Latest Model)...")
     registry.register(
         name="resnet18",
         model_path=str(r18_path), 
-        metrics={"top1_accuracy": 0.725},
-        description="Hyperparameter Tuned v2"
+        metrics={"top1_accuracy": 0.880}, # 성능 하락 시뮬레이션
+        description="v2 Update (Overfitting issue)"
     )
 
     # [3] DenseNet-121 등록 (Medical AI)
@@ -95,10 +94,10 @@ def demo_registry():
         model_path=str(dense_path),
         framework="pytorch",
         architecture="DenseNet-121",
-        input_shape=(1, 224, 224), # X-ray는 보통 Grayscale(1ch)이지만 전처리에 따라 3ch도 씀
-        metrics={"auc_roc": 0.845}, # 의료 AI는 보통 AUC를 많이 봄
+        input_shape=(1, 224, 224),
+        metrics={"auc_roc": 0.845},
         dataset="ChestX-ray14",
-        description="흉부 X-ray 진단을 위한 의료용 AI Model"
+        description="Medical AI Model for Chest X-ray Diagnosis"
     )
 
     ##########
@@ -108,20 +107,28 @@ def demo_registry():
     print("4단계: 모델 조회")
     print("="*60)
 
-    # latest 버전 조회
-    print("\n[1] ResNet-18 'latest' 버전 조회:")
+    # [1] 특정 버전 조회
+    print("\n[1] ResNet-18 'v1' 버전 직접 조회:")
+    v1_info = registry.get("resnet18", "v1")
+    if v1_info:
+        print(f"   - 버전: {v1_info['version']}")
+        print(f"   - 메트릭: {v1_info['metrics']}")
+
+    # [2] latest 버전 조회 (시간순 최신)
+    print("\n[2] ResNet-18 'latest' 버전 조회 (시간순 최신):")
     latest_info = registry.get("resnet18", "latest")
     if latest_info:
         print(f"   - 버전: {latest_info['version']}")
         print(f"   - 메트릭: {latest_info['metrics']}")
+        print(f"   -> 최신 버전인 v2가 선택됨")
 
-    # best 버전 조회
-    print("\n[2] ResNet-18 'best' 버전 조회 (성능 최고점):")
+    # [3] best 버전 조회 (성능 최고점)
+    print("\n[3] ResNet-18 'best' 버전 조회 (성능 최고점):")
     best_info = registry.get("resnet18", "best")
     if best_info:
         print(f"   - 버전: {best_info['version']}")
         print(f"   - 메트릭: {best_info['metrics']}")
-        print(f"   -> v1보다 더 높은 점수를 획득한 v2가 선택됨!")
+        print(f"   -> v2(0.88) 대신 v1(0.95)이 선택됨!")
 
     #############
     # 모델 목록 조회
