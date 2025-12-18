@@ -52,17 +52,20 @@ flowchart TB
     style Storage fill:#e8f5e9
 ```
 
-### 데이터 저장 구조
+### 전체 디렉토리 구조 (Directory Structure)
 
 ```
 Root/
-├── registry.yaml           # [Metadata] 모델 정보 저장
+├── registry.py             # [Core] 레지스트리 소스 코드
+├── example.py              # [Demo] 데모 스크립트
+├── requirements.txt        # [Config] 의존성 목록
+├── registry.yaml           # [Metadata] 모델 정보 저장 (자동생성)
 ├── pretrained_models/      # [Cache] 원본 다운로드 파일
-└── models/                 # [Storage] 레지스트리 저장소
-    ├── resnet18/           # [Family]
-    │   ├── v1/             # [Version]
+└── models/                 # [Storage] 레지스트리 저장소 (자동생성)
+    ├── resnet18/           # [Family] 일반 비전 모델
+    │   ├── v1/
     │   └── v2/
-    └── mobilenetv2/
+    └── chest_xray_densenet/# [Family] 의료용 모델 (DenseNet)
         └── v1/
 ```
 
