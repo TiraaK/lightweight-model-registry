@@ -1,4 +1,4 @@
-# 시스템 설계 문서
+# Lightweight Model Registry - System Design
 
 ## 1. 배경 조사
 

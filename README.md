@@ -1,4 +1,4 @@
-# 모델 레지스트리 시스템 (Model Registry System)
+# Lightweight Model Registry
 ML 모델 파일(`.pth`, `.pt`)의 무분별한 버전 파편화를 막고, 중앙에서 체계적으로 관리하기 위한 **경량화된 레지스트리 시스템**입니다.
 ---
 
@@ -127,21 +127,7 @@ model = registry.get("resnet18", version="best")
 | **`get`** | 메타데이터 조회 | `name`, `version` ("latest"/"best") | 모델 정보 Dict 반환 |
 | **`list`** | 모델 목록 반환 | `name` (Optional) | 리스트 반환 (`["v1", "v2"]`) |
 
----
 
-## 6. AI 도구 활용 노트 (AI Usage Note)
-
-본 과제 수행 과정에서 생산성을 높이기 위해 생성형 AI(Google Gemini 2.5 Pro)를 활용했습니다.
-
-- **활용 도구:** Google Gemini 2.5 Pro
-- **주요 도움 사례 (Key Prompts):**
-    1.  **의료 도메인 지식 습득:** *"과제에서 의료 모델 사용을 권장하는데, 코드 변경을 최소화하면서 로컬에서 가볍게 돌릴 수 있는 X-ray용 표준 모델을 추천해줘."* -> `DenseNet-121`과 `ChestX-ray14` 데이터셋 조합을 제안받아 적용함.
-    2.  **기능 확장 (Best Model):** *"단순히 최신 버전(`latest`)이 아니라, 메트릭 점수가 가장 높은 버전을 자동으로 찾는 `best` 로직을 구현하고 싶어."* -> `_get_best_version` 헬퍼 메서드 아이디어를 얻음.
-    3.  **문서 구조화:** `SYSTEM_DESIGN.md`의 목차 구성과 기술 비교표(Table) 아이디어를 제안받음.
-
-- **AI 제안 수정/거절 사례 (Human in the Loop):**
-    - **상황:** AI가 시스템 설계 문서에 `Path Resolver`, `Version Manager` 같은 실제 코드에 없는 추상적인 컴포넌트 이름을 사용하여 다이어그램을 작성함.
-    - **수정:** *"코드는 단순한데 문서만 복잡하면 오히려 이해를 해친다. 실제 코드(`registry.py`)에 있는 클래스와 메서드명으로 담백하게 다시 작성하라"*고 지시하여, 실제 구현과 일치하는 직관적인 문서로 수정함.
 
 
 ---
